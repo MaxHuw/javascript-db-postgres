@@ -12,35 +12,43 @@ const client = new pg.Client({
 
 const args = process.argv.slice(2);
 const searchName = args[0];
-console.log(searchName);
 
-client.connect((err) => {
+function displayResults(result){
+  console.log("Found " + result.rows.length + " person(s) by the name " + searchName + ":" );
+  let count = 1;
+  for (row of result.rows){
+    let birthday = (row.birthdate).toString().slice(0, 15);
+    console.log(count + " - " + row.first_name + " " + row.last_name + ", born " + birthday);
+    count ++;
+  }
+}
+
+function searchQuery(searchName){
+
+  client.connect((err) => {
   if (err) {
     return console.error("Connection Error", err);
   }
 
-  console.log("Searching...");
+    console.log("Searching...");
 
-  const query = {
-    text: `SELECT * FROM famous_people WHERE first_name = ($1::text) OR last_name = ($1::text)`,
-    values: [searchName]
-  };
+    const query = {
+      text: `SELECT * FROM famous_people WHERE first_name = ($1::text) OR last_name = ($1::text)`,
+      values: [searchName]
+      };
 
-  console.log(query.values);
-
-  client.query(query.text, query.values, (err, res) => {
-    if (err) {
-      console.log(err.stack);
-      client.end();
-    } else {
-      console.log("Found " + res.rows.length + " person(s) by the name " + searchName + ":" );
-      let count = 1;
-      for (row of res.rows){
-        let birthday = (row.birthdate).toString().slice(0, 15);
-        console.log(count + " - " + row.first_name + " " + row.last_name + ", born " + birthday);
-        count ++;
+    client.query(query.text, query.values, (err, result) => {
+      if (err) {
+        console.log(err.stack);
+        client.end();
+      } else {
+        displayResults(result);
+        client.end();
       }
-      client.end();
-    }
+    });
   });
-});
+}
+
+searchQuery(searchName);
+
+
