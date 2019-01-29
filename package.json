@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "buffer-writer": "2.0.0",
+    "knex": "^0.16.3",
     "packet-reader": "0.3.1",
     "pg": "^7.8.0",
     "pg-connection-string": "0.1.3",
